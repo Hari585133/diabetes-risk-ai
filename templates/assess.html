@@ -1,0 +1,41 @@
+{% extends "base.html" %}
+{% block title %}Health Assessment{% endblock %}
+{% block content %}
+<h2 class="page-title">Health Assessment</h2>
+<p class="text-muted">Fill in all eight fields. Values are checked on this page and again on the server.</p>
+
+<div class="alert alert-warning">Experimental tool &mdash; the result is <strong>not a medical diagnosis</strong>.</div>
+
+{% if errors %}
+<div class="alert alert-danger">Please correct the highlighted fields.</div>
+{% endif %}
+
+<form method="post" action="{{ url_for('prediction.assess') }}" id="assessForm" novalidate class="card-lite">
+  <input type="hidden" name="csrf_token" value="{{ csrf_token }}">
+  <div class="row g-3">
+    {% for field in fields %}
+    <div class="col-md-6 col-xl-3">
+      <label class="form-label fw-semibold" for="{{ field.name }}">{{ field.label }}</label>
+      <div class="input-group has-validation">
+        <input type="number" inputmode="decimal" required
+               class="form-control {% if field.name in errors %}is-invalid{% endif %}"
+               id="{{ field.name }}" name="{{ field.name }}"
+               min="{{ field.min }}" max="{{ field.max }}" step="{{ field.step }}"
+               placeholder="e.g. {{ field.example }}"
+               value="{{ form.get(field.name, '') }}"
+               data-label="{{ field.label }}" data-unit="{{ field.unit }}">
+        <span class="input-group-text">{{ field.unit }}</span>
+        <div class="invalid-feedback">
+          {{ errors.get(field.name, 'Enter a value between ' ~ field.min ~ ' and ' ~ field.max ~ '.') }}
+        </div>
+      </div>
+      <div class="form-text">{{ field.help }}</div>
+    </div>
+    {% endfor %}
+  </div>
+  <div class="mt-4 d-flex gap-2">
+    <button type="submit" class="btn btn-primary btn-lg">Get prediction</button>
+    <button type="reset" class="btn btn-outline-secondary btn-lg" id="resetBtn">Clear</button>
+  </div>
+</form>
+{% endblock %}

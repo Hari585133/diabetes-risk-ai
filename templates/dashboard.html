@@ -1,0 +1,46 @@
+{% extends "base.html" %}
+{% block title %}Dashboard{% endblock %}
+{% block content %}
+<h2 class="page-title">Dashboard</h2>
+<div class="alert alert-info">All figures below are calculated from the predictions stored on <strong>this</strong> computer
+  (see History). No sample or demo data is mixed in. Class 1 / Class 0 are model outputs, not diagnoses.</div>
+
+<div id="emptyState" class="card-lite text-center py-5 {% if total %}d-none{% endif %}">
+  <p class="text-muted mb-3">No predictions yet &mdash; charts will appear after your first assessment.</p>
+  <a class="btn btn-primary" href="{{ url_for('prediction.assess') }}">Make an assessment</a>
+</div>
+
+<div id="dashboardBody" class="{% if not total %}d-none{% endif %}">
+  <div class="row g-3 mb-1">
+    <div class="col-6 col-xl-3"><div class="stat"><span>Total predictions</span><b id="statTotal">-</b></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><span>Class 1 predictions</span><b id="statClass1">-</b></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><span>Average model score</span><b id="statAvg">-</b></div></div>
+    <div class="col-6 col-xl-3"><div class="stat"><span>Latest prediction</span><b id="statLatest" class="fs-6">-</b></div></div>
+  </div>
+
+  <div class="row g-3 mt-1">
+    <div class="col-lg-4"><div class="card-lite h-100"><h6>Predicted class distribution</h6><div class="chart-box"><canvas id="classChart"></canvas></div></div></div>
+    <div class="col-lg-4"><div class="card-lite h-100"><h6>Model score bands</h6><div class="chart-box"><canvas id="bandChart"></canvas></div></div></div>
+    <div class="col-lg-4"><div class="card-lite h-100"><h6>Age group vs predicted class</h6><div class="chart-box"><canvas id="ageChart"></canvas></div></div></div>
+    <div class="col-lg-6"><div class="card-lite h-100"><h6>Glucose analysis (mg/dL)</h6><div class="chart-box"><canvas id="glucoseChart"></canvas></div>
+      <p class="small text-muted mt-2 mb-0" id="glucoseAvg"></p></div></div>
+    <div class="col-lg-6"><div class="card-lite h-100"><h6>BMI analysis (kg/m&sup2;)</h6><div class="chart-box"><canvas id="bmiChart"></canvas></div>
+      <p class="small text-muted mt-2 mb-0" id="bmiAvg"></p></div></div>
+  </div>
+</div>
+
+<div class="card-lite mt-3">
+  <h5>About the loaded model</h5>
+  <p class="mb-2">{{ model.model_name }} &middot; version <code>{{ model.model_version }}</code> &middot; trained {{ model.trained_at }}</p>
+  <p class="small text-muted mb-2">Held-out test-set results recorded in model_metadata.json during training (Phase 2):</p>
+  <div class="d-flex flex-wrap gap-2">
+    {% for key, value in model.test_metrics.items() %}
+      <span class="badge-soft">{{ key|replace('_', ' ')|title }}: {{ '%.3f'|format(value) }}</span>
+    {% endfor %}
+  </div>
+</div>
+{% endblock %}
+{% block scripts %}
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.3/dist/chart.umd.min.js"></script>
+<script src="{{ url_for('static', filename='js/dashboard.js') }}"></script>
+{% endblock %}
