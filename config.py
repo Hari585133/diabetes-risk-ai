@@ -28,7 +28,7 @@ class Config:
     SECRET_KEY = os.environ.get("SECRET_KEY") or secrets.token_hex(32)
 
     # Files created in Phase 1 and Phase 2
-    MODEL_DIR = Path(os.environ.get("MODEL_DIR", r"D:\models"))
+    MODEL_DIR = Path(os.environ.get("MODEL_DIR", str(BASE_DIR / "models")))
     REFERENCE_DATA_PATH = Path(
         os.environ.get("REFERENCE_DATA_PATH", r"D:\dataset\processed\train.csv")
     )
